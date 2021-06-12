@@ -34,7 +34,7 @@ const Register = ({setAuth}) => {
             console.log(parseRes);
 
         } catch (err) {
-            console.log(err)
+            console.log(err.message)
         }
     }
 
