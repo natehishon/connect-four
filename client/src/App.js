@@ -14,19 +14,15 @@ import Register from "./components/Register";
 
 function App() {
 
+
     const checkAuthenticated = async () => {
         try {
-            console.log("1")
             const res = await fetch("/auth/verify", {
                 method: "POST",
                 headers: {jwt_token: localStorage.token}
             });
 
-            console.log("2")
             const parseRes = await res.json();
-
-            console.log("parse")
-            console.log(parseRes)
 
             parseRes === true ? setIsAuthenticated(true) : setIsAuthenticated(false);
         } catch (err) {
@@ -35,7 +31,6 @@ function App() {
     };
 
     useEffect(() => {
-        console.log("running")
         checkAuthenticated();
     }, []);
 
