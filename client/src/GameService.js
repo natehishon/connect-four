@@ -26,6 +26,9 @@ export const getInitialBoard = async () => {
 };
 
 export const getSavedGame = async (id) => {
+
+    console.log(localStorage.token)
+
     const res = await fetch(
         `/game/${id}`,
         {
@@ -41,10 +44,6 @@ export const saveState = async (board, turn, gameId) => {
 
     try {
         const body = {board: board, turn: turn}
-
-        console.log("saveState")
-        console.log(board);
-        console.log(turn);
 
         const response = await fetch(
             `/game/save/${gameId}`,
