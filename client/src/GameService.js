@@ -27,8 +27,6 @@ export const getInitialBoard = async () => {
 
 export const getSavedGame = async (id) => {
 
-    console.log(localStorage.token)
-
     const res = await fetch(
         `/game/${id}`,
         {
@@ -40,10 +38,10 @@ export const getSavedGame = async (id) => {
     return await res.json();
 }
 
-export const saveState = async (board, turn, gameId) => {
+export const saveState = async (board, turn, gameId, win) => {
 
     try {
-        const body = {board: board, turn: turn}
+        const body = {board: board, turn: turn, status: win ? "WON" : "IN_PROGRESS"}
 
         const response = await fetch(
             `/game/save/${gameId}`,
@@ -53,14 +51,23 @@ export const saveState = async (board, turn, gameId) => {
                 body: JSON.stringify(body)
             }
         );
-
         return await response.json();
-        //show stuff
 
     } catch (err) {
         console.error(err.message);
     }
 };
+
+export const checkTurn = (gameData, user, inputTurn) => {
+
+        if (gameData.player_one_id === user && inputTurn === 0) {
+            return true;
+        }
+
+        if (gameData.player_two_id === user && inputTurn === 1) {
+            return true
+        }
+}
 
 
 export const move = (board, col, turn, gameId) => {
@@ -107,7 +114,6 @@ export const diagonalURDLCheck = (board, turn, lastPiece) => {
             diagUpRightRow -= 1
             diagUpRightCol += 1
             if (winCounter === 3) {
-                console.log("diag up right win")
                 return true;
             }
             continue;
@@ -130,7 +136,6 @@ export const diagonalURDLCheck = (board, turn, lastPiece) => {
             diagDownLeftRow += 1
             diagDownLeftCol -= 1
             if (winCounter === 3) {
-                console.log("diag down lef win")
                 return true;
             }
             continue;
@@ -138,8 +143,7 @@ export const diagonalURDLCheck = (board, turn, lastPiece) => {
         break;
     }
 
-    console.log("WINCOUNT2")
-    console.log(winCounter)
+    return win;
 
 }
 
@@ -162,7 +166,6 @@ export const diagonalULDRCheck = (board, turn, lastPiece) => {
             diagDownRightRow += 1
             diagDownRightCol += 1
             if (winCounter === 3) {
-                console.log("diag down right win")
                 return true;
             }
             continue;
@@ -184,7 +187,6 @@ export const diagonalULDRCheck = (board, turn, lastPiece) => {
             diagUpLeftRow -= 1
             diagUpLeftCol -= 1
             if (winCounter === 3) {
-                console.log("diag up lef win")
                 return true;
             }
             continue;
@@ -196,108 +198,6 @@ export const diagonalULDRCheck = (board, turn, lastPiece) => {
 
 }
 
-export const diagonalCheck = (board, turn, lastPiece) => {
-    let [row, col] = lastPiece;
-    let winCounter = 0;
-    let win = false;
-
-
-    // diag down right
-    let diagDownRightRow = row;
-    let diagDownRightCol = col;
-    while (winCounter < 3) {
-        if (
-            (row <= 2) &&
-            board[diagDownRightRow + 1][diagDownRightCol + 1] &&
-            board[diagDownRightRow + 1][diagDownRightCol + 1].piece &&
-            board[diagDownRightRow + 1][diagDownRightCol + 1].piece.color === turn
-        ) {
-            winCounter++;
-            diagDownRightRow += 1
-            diagDownRightCol += 1
-            if (winCounter === 3) {
-                console.log("diag down right win")
-                return true;
-            }
-            continue;
-        }
-        winCounter = 0;
-        break;
-    }
-
-    //diag down left
-    let diagDownLeftRow = row;
-    let diagDownLeftCol = col;
-    while (winCounter < 3) {
-        if (
-            (row <= 2) &&
-            board[diagDownLeftRow + 1][diagDownLeftCol - 1] &&
-            board[diagDownLeftRow + 1][diagDownLeftCol - 1].piece &&
-            board[diagDownLeftRow + 1][diagDownLeftCol - 1].piece.color === turn
-        ) {
-            winCounter++;
-            diagDownLeftRow += 1
-            diagDownLeftCol -= 1
-            if (winCounter === 3) {
-                console.log("diag down lef win")
-                return true;
-            }
-            continue;
-        }
-        winCounter = 0;
-        break;
-    }
-
-    //diag up right
-    let diagUpRightRow = row;
-    let diagUpRightCol = col;
-    while (winCounter < 3) {
-        if (
-            (diagUpRightRow > 0) &&
-            board[diagUpRightRow - 1][diagUpRightCol + 1] &&
-            board[diagUpRightRow - 1][diagUpRightCol + 1].piece &&
-            board[diagUpRightRow - 1][diagUpRightCol + 1].piece.color === turn
-        ) {
-            winCounter++;
-            diagUpRightRow -= 1
-            diagUpRightCol += 1
-            if (winCounter === 3) {
-                console.log("diag up right win")
-                return true;
-            }
-            continue;
-        }
-        winCounter = 0;
-        break;
-    }
-
-    //diag up left
-    let diagUpLeftRow = row;
-    let diagUpLeftCol = col;
-    while (winCounter < 3) {
-
-        if (
-            (diagUpLeftRow > 0) &&
-            board[diagUpLeftRow - 1][diagUpLeftCol - 1] &&
-            board[diagUpLeftRow - 1][diagUpLeftCol - 1].piece &&
-            board[diagUpLeftRow - 1][diagUpLeftCol - 1].piece.color === turn
-        ) {
-            winCounter++;
-            diagUpLeftRow -= 1
-            diagUpLeftCol -= 1
-            if (winCounter === 3) {
-                console.log("diag up lef win")
-                return true;
-            }
-            continue;
-        }
-        winCounter = 0;
-        break;
-    }
-
-    return win;
-
-}
 
 export const verticalCheck = (board, turn, lastPiece) => {
     let [row, col] = lastPiece;
@@ -316,7 +216,6 @@ export const verticalCheck = (board, turn, lastPiece) => {
             winCounter++;
             row += 1
             if (winCounter === 3) {
-                console.log("vert down win")
                 return true;
             }
             continue;
@@ -345,7 +244,6 @@ export const horizontalCheck = (board, turn, lastPiece) => {
             winCounter++;
             horizontalRightCol += 1
             if (winCounter === 3) {
-                console.log("hor right win")
                 return true;
             }
             continue;
@@ -365,7 +263,6 @@ export const horizontalCheck = (board, turn, lastPiece) => {
             winCounter++;
             horizontalLeftCol -= 1
             if (winCounter === 3) {
-                console.log("hor left win")
                 return true;
             }
             continue;
@@ -385,8 +282,4 @@ export const checkForWin = (board, turn, lastPiece) => {
         diagonalULDRCheck(board, turn, lastPiece) ||
         diagonalURDLCheck(board, turn, lastPiece)
     )
-}
-
-export const submitTurn = () => {
-
 }

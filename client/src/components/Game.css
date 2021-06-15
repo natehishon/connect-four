@@ -3,6 +3,11 @@ ul {
   padding-left: 30px;
 }
 
+.board-row{
+  display: flex;
+  justify-content: center;
+}
+
 .board-row:after {
   clear: both;
   content: "";
@@ -28,14 +33,6 @@ ul {
   position: relative;
 }
 
-.white-square {
-  background-color: white;
-}
-
-.black-square {
-  background-color: black;
-}
-
 .piece {
   height: 30px;
   width: 30px;
@@ -48,11 +45,11 @@ ul {
 }
 
 .blue-piece {
-  background-color: yellow;
+  background-color: #90caf9;
 }
 
 .red-piece {
-  background-color: red;
+  background-color: #f48fb1;
 }
 
 .game {
@@ -64,19 +61,8 @@ ul {
   margin-left: 20px;
 }
 
-.highlight {
-  background-color: rgba(34, 255, 255, 0.5);
-  max-width: 100%;
-  top: 0;
-  left: 0;
-  margin: 0;
-  border: none;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  z-index: 10;
-  cursor: pointer;
+.game-board {
+  text-align: center;
 }
 
-.king {
-}
+

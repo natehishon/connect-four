@@ -3,27 +3,6 @@ const pool = require("../db");
 const authorization = require("../middleware/authorization");
 const uuid = require("uuid")
 
-
-router.post("/:id", authorization, async (req, res) => {
-    try {
-
-        console.log(req.params.id);
-        const game = await pool.query("" +
-            "SELECT * FROM games WHERE " +
-            "game_id = $1"
-            , [req.params.id]);
-
-
-        return res.json({
-            game: game.rows[0],
-        });
-
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send("Server Error")
-    }
-});
-
 router.get("/in-progress/:id", authorization, async (req, res) => {
     try {
 
@@ -32,13 +11,9 @@ router.get("/in-progress/:id", authorization, async (req, res) => {
             "status = 'NEW_GAME' and " +
             "player_one_id <> $1"
             , [req.params.id]);
-        // const progGames = await pool.query("SELECT * FROM games WHERE status = 'IN_PROGRESS' and (player_one_id = $1)", [req.params.id]);
-
-        console.log(newGames.rows);
 
         return res.json({
             newGames: newGames.rows,
-            // progGames: progGames.rows
         });
 
     } catch (err) {
@@ -56,8 +31,6 @@ router.get("/resume/:id", authorization, async (req, res) => {
             "status = 'IN_PROGRESS' and " +
             "(player_one_id = $1 OR player_two_id = $1)"
             , [req.params.id]);
-        // const progGames = await pool.query("SELECT * FROM games WHERE status = 'IN_PROGRESS' and (player_one_id = $1)", [req.params.id]);
-
 
         return res.json(resumeGames.rows);
 
@@ -68,15 +41,14 @@ router.get("/resume/:id", authorization, async (req, res) => {
 });
 
 router.post("/new", authorization, async (req, res) => {
-
     try {
-
         const {user_id} = req.body;
         const uu = uuid.v4()
 
-        const newGame = await pool.query("INSERT into games (unique_id, status, player_one_id, current_turn) VALUES ($1, $2, $3, false)", [uu, "NEW_GAME", user_id])
+        await pool.query("INSERT into games (unique_id, status, player_one_id, current_turn) VALUES ($1, $2, $3, false)", [uu, "NEW_GAME", user_id])
+        const newGame = await pool.query("SELECT * FROM games ORDER BY game_id DESC LIMIT 1")
 
-        return res.json({ newGame: newGame.rows[0] });
+        return res.json(newGame.rows[0]);
 
     } catch (err) {
         console.error(err.message);
@@ -88,13 +60,11 @@ router.post("/new", authorization, async (req, res) => {
 router.post("/join/:id", authorization, async (req, res) => {
 
     try {
-
         const {user_id} = req.body;
         const gameId = req.params.id;
+        await pool.query("UPDATE games set STATUS = 'IN_PROGRESS', player_two_id = $1 WHERE game_id = $2", [user_id, gameId])
 
-        const joinGame = await pool.query("UPDATE games set STATUS = 'IN_PROGRESS', player_two_id = $1 WHERE game_id = $2", [user_id, gameId])
-
-        return res.json({ success: true });
+        return res.json({success: true});
 
     } catch (err) {
         console.error(err.message);
@@ -106,10 +76,10 @@ router.post("/join/:id", authorization, async (req, res) => {
 router.post("/save/:id", authorization, async (req, res) => {
     try {
 
-        const {board, turn} = req.body;
+        const {board, turn, status} = req.body;
         const gameId = req.params.id;
 
-        const update = await pool.query("UPDATE games set saved_game = $1, current_turn = $2 WHERE game_id = $3", [JSON.stringify(board), !!turn, gameId])
+        await pool.query("UPDATE games set saved_game = $1, current_turn = $2, status = $3 WHERE game_id = $4", [JSON.stringify(board), !!turn, status, gameId])
         const savedGame = await pool.query("select * from games where game_id = $1", [gameId])
         return res.json(savedGame.rows[0]);
 
@@ -118,5 +88,46 @@ router.post("/save/:id", authorization, async (req, res) => {
         res.status(500).send("Server Error")
     }
 })
+
+router.post("/players/:id", authorization, async (req, res) => {
+    try {
+
+        const game = await pool.query("SELECT * FROM games WHERE game_id = $1", [req.params.id]);
+        const playerOne = await pool.query("SELECT * FROM users WHERE user_id = $1", [game.rows[0].player_one_id]);
+        const playerTwo = await pool.query("SELECT * FROM users WHERE user_id = $1", [game.rows[0].player_two_id]);
+
+        return res.json({
+            playerOne: playerOne.rows[0],
+            playerTwo: playerTwo.rows[0],
+            user: req.user
+        });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error")
+    }
+});
+
+router.post("/:id", authorization, async (req, res) => {
+    try {
+
+        const game = await pool.query("" +
+            "SELECT * FROM games WHERE " +
+            "game_id = $1"
+            , [req.params.id]);
+
+        if((game.rows[0].player_one_id !== req.user) && (game.rows[0].player_two_id !== req.user)){
+            throw new Error('Not your game!');
+        }
+
+        return res.json({
+            game: game.rows[0],
+        });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send(err.message)
+    }
+});
 
 module.exports = router;

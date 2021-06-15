@@ -16,13 +16,11 @@ import Game from "./components/Game";
 function App() {
 
     const [loading, setLoading] = useState(true)
-    const [user, setUser] = useState({user_name: "", user_id: ""})
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
 
     const getData = async () => {
         try {
-            console.log("verify")
             const res = await fetch("/auth/verify", {
                 method: "POST",
                 headers: {jwt_token: localStorage.token}
@@ -32,18 +30,9 @@ function App() {
 
             parseRes === true ? setIsAuthenticated(true) : setIsAuthenticated(false);
 
-            const use = await fetch("/dashboard/", {
-                method: "POST",
-                headers: {jwt_token: localStorage.token}
-            });
-
-            const parseData = await use.json();
-            setUser(parseData);
             setLoading(false);
-            console.log("1")
 
         } catch (err) {
-            console.log(isAuthenticated)
             setLoading(false);
             console.error(err.message);
         }
@@ -98,7 +87,7 @@ function App() {
                             path="/dashboard"
                             render={props =>
                                 isAuthenticated ? (
-                                    <Dashboard {...props} setAuth={setAuth} user={user}/>
+                                    <Dashboard {...props} setAuth={setAuth}/>
                                 ) : (
                                     <Redirect to="/login"/>
                                 )
@@ -109,7 +98,7 @@ function App() {
                             path="/game/:id"
                             render={props =>
                                 isAuthenticated ? (
-                                    <Game {...props} setAuth={setAuth} user={user}/>
+                                    <Game {...props} setAuth={setAuth}/>
                                 ) : (
                                     <Redirect to="/login"/>
                                 )

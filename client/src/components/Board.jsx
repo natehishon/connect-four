@@ -1,7 +1,5 @@
 import React from "react";
 import Square from "./Square";
-// import WhiteSquare from "./WhiteSquare";
-// import BlackSquare from "./BlackSquare";
 const Board = ({cells}) => {
 
     return (

@@ -1,8 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
-import Button from "@material-ui/core/Button";
-import Square from "./Square";
+import {useHistory} from "react-router-dom";
 
 function getModalStyle() {
     const top = 50;
@@ -26,16 +25,15 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function JoinGameModel({open: open, handleClose: handleClose, propUser:user}) {
-// export default function NewGameModal(props) {
+export default function JoinGameModel({open: open, handleClose: handleClose, propUser: user}) {
     const classes = useStyles();
     const [modalStyle] = useState(getModalStyle);
     const [newGames, setNewGames] = useState([])
-    // const [progGames, setProgGames] = useState([])
+    const history = useHistory();
 
-    useEffect(async ()  => {
-        //get games to join
-        if(user.user_id){
+    useEffect(async () => {
+
+        if (user.user_id) {
             try {
                 const response = await fetch(
                     `/game/in-progress/${user.user_id}`,
@@ -47,22 +45,18 @@ export default function JoinGameModel({open: open, handleClose: handleClose, pro
 
                 const parseRes = await response.json();
                 setNewGames(parseRes.newGames);
-                // setProgGames(parseRes.progGames);
-                //show stuff
 
             } catch (err) {
                 console.error(err.message);
             }
         }
 
-
-
     }, [user])
 
     const handleJoinGame = async (gameId) => {
         try {
             const body = {user_id: user.user_id}
-            const response = await fetch(
+            const res = await fetch(
                 `/game/join/${gameId}`,
                 {
                     method: "POST",
@@ -71,14 +65,15 @@ export default function JoinGameModel({open: open, handleClose: handleClose, pro
                 }
             );
 
-            const parseRes = await response.json();
-            console.log(parseRes)
-            //show stuff
+            const response = await res.json();
+
+            if (response.success === true) {
+                history.push(`/game/${gameId}`);
+            }
 
         } catch (err) {
             console.error(err.message);
         }
-
 
     }
 
@@ -99,14 +94,6 @@ export default function JoinGameModel({open: open, handleClose: handleClose, pro
                             <button onClick={() => handleJoinGame(game.game_id)}>join</button>
                         </div>
                     ))}
-
-                    {/*{progGames.map((game, id) => (*/}
-                    {/*    <div className="board-row" key={id}>*/}
-                    {/*        {game.game_id}*/}
-                    {/*        <button onClick={() => handleJoinGame(game.game_id)}>join</button>*/}
-                    {/*    </div>*/}
-                    {/*))}*/}
-
                 </div>
             </Modal>
         </div>

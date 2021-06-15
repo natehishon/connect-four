@@ -31,10 +31,8 @@ export default function ResumeGameModal({open: open, handleClose: handleClose, p
     const [resumeGames, setResumeGames] = useState([])
 
     useEffect(async ()  => {
-        //get games to join
         if(user.user_id){
             try {
-                console.log(user.user_id)
                 const response = await fetch(
                     `/game/resume/${user.user_id}`,
                     {
@@ -45,41 +43,13 @@ export default function ResumeGameModal({open: open, handleClose: handleClose, p
 
                 const parseRes = await response.json();
                 setResumeGames(parseRes);
-                //show stuff
 
             } catch (err) {
                 console.error(err.message);
             }
         }
 
-
-
     }, [user])
-
-    const handleJoinGame = async (gameId) => {
-
-        try {
-            console.log(user.user_id)
-            const body = {user_id: user.user_id}
-            const response = await fetch(
-                `/game/join/${gameId}`,
-                {
-                    method: "POST",
-                    headers: {"Content-Type": "application/json", jwt_token: localStorage.token},
-                    body: JSON.stringify(body)
-                }
-            );
-
-            const parseRes = await response.json();
-            console.log(parseRes)
-            //show stuff
-
-        } catch (err) {
-            console.error(err.message);
-        }
-
-
-    }
 
     return (
         <div>
@@ -94,18 +64,9 @@ export default function ResumeGameModal({open: open, handleClose: handleClose, p
 
                     {resumeGames.map((game, id) => (
                         <div className="board-row" key={id}>
-                            {/*<button onClick={() => handleJoinGame(game.game_id)}>join</button>*/}
                             <Link href={`/game/${game.game_id}`} variant="body2">{game.game_id}</Link>
                         </div>
                     ))}
-
-                    {/*{progGames.map((game, id) => (*/}
-                    {/*    <div className="board-row" key={id}>*/}
-                    {/*        {game.game_id}*/}
-                    {/*        <button onClick={() => handleJoinGame(game.game_id)}>join</button>*/}
-                    {/*    </div>*/}
-                    {/*))}*/}
-
                 </div>
             </Modal>
         </div>

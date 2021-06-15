@@ -3,14 +3,8 @@ import EventContext from "../EventContext";
 import Piece from "./Piece";
 
 const Square = ({model, row, col}) => {
-    //black square will forward user event to Game.
-    // console.log("model")
-    // console.log(model)
-    // console.log(row)
-    // console.log(col)
     const {handleSquareSelected} = useContext(EventContext);
     const handleClick = () => {
-        //forwarding user event to Game.
         handleSquareSelected(col);
     };
     return (

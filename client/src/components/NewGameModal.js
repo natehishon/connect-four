@@ -2,10 +2,11 @@ import React, {useEffect, useState} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Button from "@material-ui/core/Button";
+import CircularProgress from '@material-ui/core/CircularProgress';
+import {useHistory} from 'react-router-dom';
+import Grid from '@material-ui/core/Grid';
 
-function rand() {
-    return Math.round(Math.random() * 20) - 10;
-}
+import * as GameService from "../GameService";
 
 function getModalStyle() {
     const top = 50;
@@ -29,18 +30,48 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function NewGameModal({open: open, handleClose: handleClose, propUser:user}) {
-// export default function NewGameModal(props) {
+export default function NewGameModal({open: open, handleClose: handleClose, propUser: user}) {
     const classes = useStyles();
     const [modalStyle] = useState(getModalStyle);
+    const [created, setCreated] = useState(false)
+    const [newGame, setNewGame] = useState(null)
+    const history = useHistory();
+
+    // Programmatically navigate
+
+    useEffect(() => {
+        if (created) {
+            setCreated(false)
+        }
+    }, [handleClose]);
+
+    useEffect(async () => {
+        if (created) {
+            const interval = setInterval(async () => {
+                const res = await fetch(
+                    `/game/${newGame.game_id}`,
+                    {
+                        method: "POST",
+                        headers: {jwt_token: localStorage.token},
+                    }
+                );
+
+                const response = await res.json()
+
+                if (response.game.status === "IN_PROGRESS") {
+                    history.push(`/game/${response.game.game_id}`);
+                    clearInterval(interval);
+
+                }
+
+            }, 3000);
+        }
+    }, [created])
 
     const handleNewGame = async () => {
 
-        //user?
-
         try {
             const body = {user_id: user.user_id};
-            console.log(body);
             const response = await fetch(
                 "/game/new",
                 {
@@ -51,36 +82,45 @@ export default function NewGameModal({open: open, handleClose: handleClose, prop
             );
 
             const parseRes = await response.json();
-            //show stuff
+            setNewGame(parseRes);
+            setCreated(true)
 
         } catch (err) {
             console.error(err.message);
         }
     }
 
-        const body = (
-            <div style={modalStyle} className={classes.paper}>
-                <h2 id="simple-modal-title">New Game!</h2>
-                <p id="simple-modal-description">
-                    {user.user_id}
-                </p>
-                <Button fullWidth variant="outlined" color="primary" onClick={handleNewGame}>
-                    New Game
-                </Button>
+    const create = (
+        <div style={modalStyle} className={classes.paper}>
+            <h2 id="simple-modal-title">New Game!</h2>
+            <Button fullWidth variant="contained" color="primary" onClick={handleNewGame}>
+                New Game
+            </Button>
 
-            </div>
-        );
+        </div>
+    );
 
-        return (
-            <div>
-                <Modal
-                    open={open}
-                    onClose={handleClose}
-                    aria-labelledby="simple-modal-title"
-                    aria-describedby="simple-modal-description"
-                >
-                    {body}
-                </Modal>
-            </div>
-        );
-    }
+    const wait = (
+        <div style={modalStyle} className={classes.paper}>
+            <h2 id="simple-modal-title">waiting for a player to join</h2>
+            <Grid container justify="center">
+                <CircularProgress/>
+            </Grid>
+        </div>
+    )
+
+    return (
+        <div>
+            <Modal
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="simple-modal-title"
+                aria-describedby="simple-modal-description"
+            >
+                {
+                    created ? wait : create
+                }
+            </Modal>
+        </div>
+    );
+}
