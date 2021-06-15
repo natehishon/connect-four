@@ -64,8 +64,6 @@ router.post("/login", validInfo, async (req, res) => {
 router.post("/verify", authorization, async (req, res) => {
 
     try {
-        console.log("here")
-
         res.json(true);
 
     } catch (err) {

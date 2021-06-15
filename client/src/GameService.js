@@ -21,12 +21,50 @@ export const setUpGame = () => {
 export const getInitialBoard = async () => {
     return new Promise((resolFunc, rejectFunc) => {
         const board = setUpGame();
-        resolFunc({board, turn: Color.BLACK});
+        resolFunc({board, turn: 0});
     });
 };
 
+export const getSavedGame = async (id) => {
+    const res = await fetch(
+        `/game/${id}`,
+        {
+            method: "GET",
+            headers: {"Content-Type": "application/json", jwt_token: localStorage.token},
+        }
+    );
 
-export const move = (board, col, turn) => {
+    return await res.json();
+}
+
+export const saveState = async (board, turn, gameId) => {
+
+    try {
+        const body = {board: board, turn: turn}
+
+        console.log("saveState")
+        console.log(board);
+        console.log(turn);
+
+        const response = await fetch(
+            `/game/save/${gameId}`,
+            {
+                method: "POST",
+                headers: {"Content-Type": "application/json", jwt_token: localStorage.token},
+                body: JSON.stringify(body)
+            }
+        );
+
+        return await response.json();
+        //show stuff
+
+    } catch (err) {
+        console.error(err.message);
+    }
+};
+
+
+export const move = (board, col, turn, gameId) => {
     let i = BOARD_ROWS - 1;
     let moved = false;
     let lastPiece = [0, 0];
@@ -348,4 +386,8 @@ export const checkForWin = (board, turn, lastPiece) => {
         diagonalULDRCheck(board, turn, lastPiece) ||
         diagonalURDLCheck(board, turn, lastPiece)
     )
+}
+
+export const submitTurn = () => {
+
 }

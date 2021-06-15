@@ -11,11 +11,16 @@ import {
 import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import Game from "./components/Game";
 
 function App() {
 
+    const [loading, setLoading] = useState(true)
+    const [user, setUser] = useState({user_name: "", user_id: ""})
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-    const checkAuthenticated = async () => {
+
+    const getData = async () => {
         try {
             const res = await fetch("/auth/verify", {
                 method: "POST",
@@ -25,23 +30,42 @@ function App() {
             const parseRes = await res.json();
 
             parseRes === true ? setIsAuthenticated(true) : setIsAuthenticated(false);
+
+            const use = await fetch("/dashboard/", {
+                method: "POST",
+                headers: {jwt_token: localStorage.token}
+            });
+
+            const parseData = await use.json();
+            setUser(parseData);
+            setLoading(false);
+            console.log("1")
+
         } catch (err) {
+            console.log(isAuthenticated)
+            setLoading(false);
             console.error(err.message);
         }
     };
 
+
+
     useEffect(() => {
-        checkAuthenticated();
+        getData();
     }, []);
 
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
 
     const setAuth = (boolean) => {
         setIsAuthenticated(boolean);
     }
 
+    if(loading === true){
+        return <div>loading</div>
+    }
 
     return (
+
         <Fragment>
             <Router>
                 <div className="container">
@@ -64,7 +88,7 @@ function App() {
                                 !isAuthenticated ? (
                                     <Register {...props} setAuth={setAuth}/>
                                 ) : (
-                                    <Redirect to="/login"/>
+                                    <Redirect to="/dashboard"/>
                                 )
                             }
                         />
@@ -73,7 +97,18 @@ function App() {
                             path="/dashboard"
                             render={props =>
                                 isAuthenticated ? (
-                                    <Dashboard {...props} setAuth={setAuth}/>
+                                    <Dashboard {...props} setAuth={setAuth} user={user}/>
+                                ) : (
+                                    <Redirect to="/login"/>
+                                )
+                            }
+                        />
+                        <Route
+                            exact
+                            path="/game/:id"
+                            render={props =>
+                                isAuthenticated ? (
+                                    <Game {...props} setAuth={setAuth} user={user}/>
                                 ) : (
                                     <Redirect to="/login"/>
                                 )
