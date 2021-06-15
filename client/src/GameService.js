@@ -32,8 +32,8 @@ export const getSavedGame = async (id) => {
     const res = await fetch(
         `/game/${id}`,
         {
-            method: "GET",
-            headers: {"Content-Type": "application/json", jwt_token: localStorage.token},
+            method: "POST",
+            headers: {jwt_token: localStorage.token},
         }
     );
 

@@ -22,6 +22,7 @@ function App() {
 
     const getData = async () => {
         try {
+            console.log("verify")
             const res = await fetch("/auth/verify", {
                 method: "POST",
                 headers: {jwt_token: localStorage.token}

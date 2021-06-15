@@ -4,7 +4,7 @@ const authorization = require("../middleware/authorization");
 const uuid = require("uuid")
 
 
-router.get("/:id", authorization, async (req, res) => {
+router.post("/:id", authorization, async (req, res) => {
     try {
 
         console.log(req.params.id);
