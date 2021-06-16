@@ -5,6 +5,7 @@ import Piece from "./models/Piece";
 export const BOARD_ROWS = 6;
 export const BOARD_COLUMNS = 7;
 
+//the idea with the game service is that it would behave like game logic back end, but decided to keep it on the clientside
 
 export const setUpGame = () => {
     const board = [];
@@ -25,39 +26,6 @@ export const getInitialBoard = async () => {
     });
 };
 
-export const getSavedGame = async (id) => {
-
-    const res = await fetch(
-        `/game/${id}`,
-        {
-            method: "POST",
-            headers: {jwt_token: localStorage.token},
-        }
-    );
-
-    return await res.json();
-}
-
-export const saveState = async (board, turn, gameId, win) => {
-
-    try {
-        const body = {board: board, turn: turn, status: win ? "WON" : "IN_PROGRESS"}
-
-        const response = await fetch(
-            `/game/save/${gameId}`,
-            {
-                method: "POST",
-                headers: {"Content-Type": "application/json", jwt_token: localStorage.token},
-                body: JSON.stringify(body)
-            }
-        );
-        return await response.json();
-
-    } catch (err) {
-        console.error(err.message);
-    }
-};
-
 export const checkTurn = (gameData, user, inputTurn) => {
 
         if (gameData.player_one_id === user && inputTurn === 0) {
@@ -67,10 +35,12 @@ export const checkTurn = (gameData, user, inputTurn) => {
         if (gameData.player_two_id === user && inputTurn === 1) {
             return true
         }
+
+        return false
 }
 
 
-export const move = (board, col, turn, gameId) => {
+export const move = (board, col, turn) => {
     let i = BOARD_ROWS - 1;
     let moved = false;
     let lastPiece = [0, 0];

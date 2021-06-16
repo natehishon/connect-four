@@ -5,8 +5,30 @@ import Button from "@material-ui/core/Button";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import {useHistory} from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
+import TextField from "@material-ui/core/TextField";
 
-import * as GameService from "../GameService";
+
+const useStyles = makeStyles((theme) => ({
+    paper: {
+        position: 'absolute',
+        width: 400,
+        backgroundColor: theme.palette.background.paper,
+        border: '2px solid #000',
+        boxShadow: theme.shadows[5],
+        padding: theme.spacing(2, 4, 3),
+    },
+    // avatar: {
+    //     margin: theme.spacing(1),
+    //     backgroundColor: theme.palette.secondary.main,
+    // },
+    form: {
+        width: '100%', // Fix IE 11 issue.
+        marginTop: theme.spacing(1),
+    },
+    submit: {
+        margin: theme.spacing(3, 0, 2),
+    },
+}));
 
 function getModalStyle() {
     const top = 50;
@@ -19,23 +41,21 @@ function getModalStyle() {
     };
 }
 
-const useStyles = makeStyles((theme) => ({
-    paper: {
-        position: 'absolute',
-        width: 400,
-        backgroundColor: theme.palette.background.paper,
-        border: '2px solid #000',
-        boxShadow: theme.shadows[5],
-        padding: theme.spacing(2, 4, 3),
-    },
-}));
-
 export default function NewGameModal({open: open, handleClose: handleClose, propUser: user}) {
     const classes = useStyles();
     const [modalStyle] = useState(getModalStyle);
     const [created, setCreated] = useState(false)
     const [newGame, setNewGame] = useState(null)
     const history = useHistory();
+    const [inputs, setInputs] = useState({
+        name: "",
+    })
+
+    const {name} = inputs
+
+    const onChange = (e) => {
+        setInputs({...inputs, [e.target.name]: e.target.value})
+    }
 
     // Programmatically navigate
 
@@ -68,10 +88,11 @@ export default function NewGameModal({open: open, handleClose: handleClose, prop
         }
     }, [created])
 
-    const handleNewGame = async () => {
+    const onSubmitForm = async e => {
+        e.preventDefault();
 
         try {
-            const body = {user_id: user.user_id};
+            const body = {user_id: user.user_id, name: name};
             const response = await fetch(
                 "/game/new",
                 {
@@ -93,10 +114,31 @@ export default function NewGameModal({open: open, handleClose: handleClose, prop
     const create = (
         <div style={modalStyle} className={classes.paper}>
             <h2 id="simple-modal-title">New Game!</h2>
-            <Button fullWidth variant="contained" color="primary" onClick={handleNewGame}>
-                New Game
-            </Button>
 
+            <form noValidate onSubmit={onSubmitForm}>
+                <TextField
+                    value={name}
+                    onChange={e => onChange(e)}
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    label="Name of game"
+                    id="name"
+                    name="name"
+                    autoComplete="name"
+                    autoFocus
+                />
+                <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                >
+                    Save
+                </Button>
+            </form>
         </div>
     );
 

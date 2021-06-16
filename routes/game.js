@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const pool = require("../db");
 const authorization = require("../middleware/authorization");
-const uuid = require("uuid")
 
 router.get("/in-progress/:id", authorization, async (req, res) => {
     try {
@@ -28,7 +27,7 @@ router.get("/resume/:id", authorization, async (req, res) => {
 
         const resumeGames = await pool.query("" +
             "SELECT * FROM games WHERE " +
-            "status = 'IN_PROGRESS' and " +
+            "(status = 'IN_PROGRESS' OR status = 'WON') and " +
             "(player_one_id = $1 OR player_two_id = $1)"
             , [req.params.id]);
 
@@ -42,10 +41,9 @@ router.get("/resume/:id", authorization, async (req, res) => {
 
 router.post("/new", authorization, async (req, res) => {
     try {
-        const {user_id} = req.body;
-        const uu = uuid.v4()
+        const {user_id, name} = req.body;
 
-        await pool.query("INSERT into games (unique_id, status, player_one_id, current_turn) VALUES ($1, $2, $3, false)", [uu, "NEW_GAME", user_id])
+        await pool.query("INSERT into games (status, player_one_id, name, current_turn) VALUES ($1, $2, $3, false)", ["NEW_GAME", user_id, name])
         const newGame = await pool.query("SELECT * FROM games ORDER BY game_id DESC LIMIT 1")
 
         return res.json(newGame.rows[0]);

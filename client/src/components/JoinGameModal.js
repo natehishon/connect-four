@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import {useHistory} from "react-router-dom";
+import GameList from "./GameList";
 
 function getModalStyle() {
     const top = 50;
@@ -87,13 +88,7 @@ export default function JoinGameModel({open: open, handleClose: handleClose, pro
             >
                 <div style={modalStyle} className={classes.paper}>
                     <h2 id="simple-modal-title">Join Game!</h2>
-
-                    {newGames.map((game, id) => (
-                        <div className="board-row" key={id}>
-                            {game.game_id}
-                            <button onClick={() => handleJoinGame(game.game_id)}>join</button>
-                        </div>
-                    ))}
+                    <GameList games={newGames} type="join" user={user} />
                 </div>
             </Modal>
         </div>

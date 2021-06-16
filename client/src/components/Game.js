@@ -10,6 +10,7 @@ import {useParams} from 'react-router-dom';
 import {makeStyles} from '@material-ui/core/styles';
 import Grid from "@material-ui/core/Grid";
 import WinModal from "./WinModal";
+import {useHistory} from "react-router-dom";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -61,8 +62,8 @@ const Game = ({setAuth}) => {
     const [openWinner, setOpenWinner] = useState(false);
     let {id} = useParams();
     const classes = useStyles();
+    const history = useHistory();
 
-    //get user stuff
     const getPlayerAndUser = async () => {
         const use = await fetch(`/game/players/${id}`, {
             method: "POST",
@@ -75,30 +76,29 @@ const Game = ({setAuth}) => {
         setUser(parseData.user)
     }
 
-    //get inital game board
     const fetchInitialState = async () => {
         if (user) {
-            const savedGame = await GameService.getSavedGame(id)
+            const savedGame = await getSavedGame(id)
 
-            if(!savedGame.game){
+            if (!savedGame.game) {
                 //show error
             }
 
-            //new game
-            if (!savedGame.game.saved_game) {
-                const {board, turn} = await GameService.getInitialBoard();
-                const gameData = await GameService.saveState(board, turn, id, false);
-                setGameData(gameData)
-                setCells(board);
-                setTurn(turn);
-                setLoading(false);
-            } else {
-                if (savedGame.game.status === "WON") {
-                    setWinner(true)
-                }
+            if (savedGame.game.saved_game) {
                 setCells(savedGame.game.saved_game);
                 setGameData(savedGame.game)
                 setTurn(savedGame.game.current_turn ? 1 : 0);
+                if (savedGame.game.status === "WON") {
+                    setWinner(true)
+                }
+                setLoading(false);
+
+            } else {
+                const {board, turn} = await GameService.getInitialBoard();
+                const gameData = await saveState(board, turn, id, false);
+                setGameData(gameData)
+                setCells(board);
+                setTurn(turn);
                 setLoading(false);
             }
         }
@@ -116,12 +116,18 @@ const Game = ({setAuth}) => {
 
     useEffect(async () => {
 
-        if (gameData != null) {
-            const check = GameService.checkTurn(gameData, user, turn)
-            setLocked(!check)
-            if (!check) {
+        if (gameData) {
+            const myTurn = GameService.checkTurn(gameData, user, turn)
+            setLocked(!myTurn)
+
+            if (!myTurn) {
                 const interval = setInterval(async () => {
-                    const savedGame = await GameService.getSavedGame(id)
+                    const savedGame = await getSavedGame(id)
+
+                    if(!savedGame.game){
+                        history.push(`/dashboard`);
+                    }
+
                     setCells(savedGame.game.saved_game);
                     setGameData(savedGame.game)
                     if (savedGame.game.status === "WON") {
@@ -147,33 +153,57 @@ const Game = ({setAuth}) => {
         }
     }, [winner])
 
-    const handleSquareSelected = (col) => {
+    const handleSquareSelected = async (col) => {
 
         if (!locked) {
-            const [board, moved, lastPiece] = GameService.move(cells, col, turn, id);
+            const [board, moved, lastPiece] = GameService.move(cells, col, turn);
 
             if (moved === true) {
                 const win = GameService.checkForWin(board, turn, lastPiece)
-
                 setWinner(win)
                 setCells(board);
                 setTurn(1 - turn);
-
-                async function saveState() {
-                    const savedGame = await GameService.saveState(board, 1 - turn, id, win);
-                    setGameData(savedGame)
-                }
-
-                saveState();
+                const savedGame = await saveState(board, 1 - turn, id, win);
+                setGameData(savedGame)
             }
         }
-
     };
+
+    const saveState = async (board, turn, gameId, win) => {
+        try {
+            const body = {board: board, turn: turn, status: win ? "WON" : "IN_PROGRESS"}
+
+            const response = await fetch(
+                `/game/save/${gameId}`,
+                {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json", jwt_token: localStorage.token},
+                    body: JSON.stringify(body)
+                }
+            );
+            return await response.json();
+
+        } catch (err) {
+            console.error(err.message);
+        }
+    }
+
+    const getSavedGame = async (id) => {
+        const res = await fetch(
+            `/game/${id}`,
+            {
+                method: "POST",
+                headers: {jwt_token: localStorage.token},
+            }
+        );
+
+        return await res.json();
+    }
 
     const handleReset = async () => {
         if (winner) {
             const {board, turn} = await GameService.getInitialBoard();
-            const gameData = await GameService.saveState(board, turn, id, false);
+            const gameData = await saveState(board, turn, id, false);
             setGameData(gameData)
             setCells(board);
             setTurn(turn);
@@ -196,7 +226,6 @@ const Game = ({setAuth}) => {
                     <Loader/>
                 ) : (
                     <main className={classes.layout}>
-                        {/*<Paper className={classes.paper}>*/}
                         <div className="game-board">
                             <EventContext.Provider value={{handleSquareSelected, user}}>
 
@@ -222,7 +251,6 @@ const Game = ({setAuth}) => {
 
                             </EventContext.Provider>
                         </div>
-                        {/*</Paper>*/}
                     </main>
                 )}
             </div>

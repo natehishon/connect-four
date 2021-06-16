@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Link from "@material-ui/core/Link";
+import GameList from "./GameList";
 
 function getModalStyle() {
     const top = 50;
@@ -62,11 +63,12 @@ export default function ResumeGameModal({open: open, handleClose: handleClose, p
                 <div style={modalStyle} className={classes.paper}>
                     <h2 id="simple-modal-title">Resume Game!</h2>
 
-                    {resumeGames.map((game, id) => (
-                        <div className="board-row" key={id}>
-                            <Link href={`/game/${game.game_id}`} variant="body2">{game.game_id}</Link>
-                        </div>
-                    ))}
+                    <GameList games={resumeGames} type="resume" user={user}/>
+                    {/*{resumeGames.map((game, id) => (*/}
+                    {/*    <div className="board-row" key={id}>*/}
+                    {/*        <Link href={`/game/${game.game_id}`} variant="body2">{game.game_id}</Link>*/}
+                    {/*    </div>*/}
+                    {/*))}*/}
                 </div>
             </Modal>
         </div>

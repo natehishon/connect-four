@@ -12,8 +12,8 @@ INSERT INTO users (user_name, user_email, user_password) VALUES ('nate', 'nathan
 
 CREATE TABLE games(
     game_id SERIAL PRIMARY KEY,
-    unique_id VARCHAR(255),
-    status VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
+    status VARCHAR(255) NOT NULL,
     saved_game jsonb,
     current_turn boolean,
     player_one_id integer not null references users(user_id),
