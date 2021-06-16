@@ -107,7 +107,7 @@ export default function Dashboard({setAuth}) {
                     Connect Four!
                 </Typography>
                 <Typography variant="h5" align="center" color="textSecondary" component="p">
-                    Welcome {user.user_name} choose your game options:
+                    Welcome {user.user_name}, choose your game options:
                 </Typography>
             </Container>
             <Container maxWidth="md" component="main">

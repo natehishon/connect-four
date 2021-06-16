@@ -136,7 +136,7 @@ export default function NewGameModal({open: open, handleClose: handleClose, prop
                     color="primary"
                     className={classes.submit}
                 >
-                    Save
+                    Create
                 </Button>
             </form>
         </div>

@@ -37,8 +37,7 @@ export default function WinModal({open: open, handleClose: handleClose}) {
                 aria-describedby="simple-modal-description"
             >
                 <div style={modalStyle} className={classes.paper}>
-                    <h2 id="simple-modal-title">WINNER!</h2>
-
+                    <h2 id="simple-modal-title">We have a winner!</h2>
                 </div>
             </Modal>
         </div>
