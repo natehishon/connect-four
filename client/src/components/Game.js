@@ -11,6 +11,9 @@ import {makeStyles} from '@material-ui/core/styles';
 import Grid from "@material-ui/core/Grid";
 import WinModal from "./WinModal";
 import {useHistory} from "react-router-dom";
+import ScoreCard from "./ScoreCard";
+import Button from "@material-ui/core/Button";
+import Box from '@material-ui/core/Box';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -124,21 +127,25 @@ const Game = ({setAuth}) => {
                 const interval = setInterval(async () => {
                     const savedGame = await getSavedGame(id)
 
-                    if(!savedGame.game){
-                        history.push(`/dashboard`);
+                    if (!savedGame.game) {
+                        setAuth(false);
+                        return
                     }
 
                     setCells(savedGame.game.saved_game);
                     setGameData(savedGame.game)
+
                     if (savedGame.game.status === "WON") {
                         setWinner(true)
                     } else {
                         setTurn(savedGame.game.current_turn ? 1 : 0);
                         const currentTurn = GameService.checkTurn(gameData, user, savedGame.game.current_turn ? 1 : 0)
                         setLocked(!currentTurn)
+                        setWinner(false)
                         if (currentTurn) {
                             clearInterval(interval);
                         }
+
                     }
                 }, 1000);
             }
@@ -189,15 +196,19 @@ const Game = ({setAuth}) => {
     }
 
     const getSavedGame = async (id) => {
-        const res = await fetch(
-            `/game/${id}`,
-            {
-                method: "POST",
-                headers: {jwt_token: localStorage.token},
-            }
-        );
+        try {
+            const res = await fetch(
+                `/game/${id}`,
+                {
+                    method: "POST",
+                    headers: {jwt_token: localStorage.token},
+                }
+            );
 
-        return await res.json();
+            return await res.json();
+        } catch {
+
+        }
     }
 
     const handleReset = async () => {
@@ -226,31 +237,35 @@ const Game = ({setAuth}) => {
                     <Loader/>
                 ) : (
                     <main className={classes.layout}>
-                        <div className="game-board">
-                            <EventContext.Provider value={{handleSquareSelected, user}}>
-
-                                <Grid container spacing={2}>
-                                    <Grid item sm={1}>
-                                        <span>player one: {playerOne.user_name}</span>
-                                        {turn ? <div>not my turn</div> : <div>my turn</div>}
-                                    </Grid>
-                                    <Grid item sm={10}>
-                                        <Board cells={cells}/>
-                                    </Grid>
-                                    <Grid item sm={1}>
-                                        <span>player two: {playerTwo.user_name}</span>
-
-                                        {turn ? <div>my turn</div> : <div>not my turn</div>}
-                                    </Grid>
+                        <EventContext.Provider value={{handleSquareSelected, user}}>
+                            <Grid container spacing={2}>
+                                <Grid item sm={2}>
+                                    <ScoreCard playerNumber={0} player={playerOne} turn={turn} winner={winner}/>
                                 </Grid>
-                                {locked.toString()}
-                                {turn.toString()}
-                                <WinModal open={openWinner} handleClose={handleCloseWinner}/>
+                                <Grid item sm={8}>
+                                    <Board className="board" cells={cells}/>
+                                </Grid>
+                                <Grid item sm={2}>
+                                    <ScoreCard playerNumber={1} player={playerTwo} turn={turn} winner={winner}/>
+                                </Grid>
+                            </Grid>
+                            <WinModal open={openWinner} handleClose={handleCloseWinner}/>
 
-                                <button onClick={handleReset}>reset</button>
+                            {winner &&
+                            <Box m={2} pt={3}>
+                                <Grid container justify="center">
+                                    <Button size="large"
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={handleReset}>
+                                        reset
+                                    </Button>
+                                </Grid>
+                            </Box>
+                            }
 
-                            </EventContext.Provider>
-                        </div>
+
+                        </EventContext.Provider>
                     </main>
                 )}
             </div>

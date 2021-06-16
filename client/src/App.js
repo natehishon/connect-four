@@ -18,7 +18,6 @@ function App() {
     const [loading, setLoading] = useState(true)
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-
     const getData = async () => {
         try {
             const res = await fetch("/auth/verify", {
@@ -104,6 +103,9 @@ function App() {
                                 )
                             }
                         />
+                        <Route path='*'>
+                            <Redirect to="/login"/>
+                        </Route>
                     </Switch>
                 </div>
             </Router>

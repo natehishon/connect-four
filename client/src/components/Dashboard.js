@@ -33,10 +33,9 @@ const useStyles = makeStyles((theme) => ({
     heroContent: {
         padding: theme.spacing(8, 0, 6),
     },
-    cardHeader: {
-        backgroundColor:
-            theme.palette.type === 'light' ? theme.palette.grey[200] : theme.palette.grey[700],
-    },
+    buttonGroup: {
+        marginTop: `20px`
+    }
 }));
 
 
@@ -110,80 +109,37 @@ export default function Dashboard({setAuth}) {
                     Welcome {user.user_name}, choose your game options:
                 </Typography>
             </Container>
-            <Container maxWidth="md" component="main">
+            <Container maxWidth="md" component="main" className={classes.buttonGroup}>
                 <Grid container spacing={5} alignItems="flex-end">
                     <Grid item xs={12} sm={6} md={4}>
-                        <Card>
-                            <CardHeader
-                                title="New Game"
-                                titleTypographyProps={{align: 'center'}}
-                                subheaderTypographyProps={{align: 'center'}}
-                                className={classes.cardHeader}
-                            />
-                            <NewGameModal open={openNew} handleClose={handleNewClose} propUser={user}/>
-                            <CardContent>
-                                <ul>
-                                    <Typography component="li" variant="subtitle1" align="center">
-                                        Create a new game
-                                    </Typography>
-                                </ul>
-                            </CardContent>
-                            <CardActions>
-                                <Button fullWidth color="primary" variant="contained"
-                                        onClick={handleNewOpen}>
-                                    Create
-                                </Button>
-                            </CardActions>
-                        </Card>
+                        <Button fullWidth
+                                variant="contained"
+                                color={"primary"}
+                                style={{fontSize: '25px', 'text-transform': 'none'}}
+                                onClick={handleNewOpen}>
+                            Create
+                        </Button>
+                        <NewGameModal open={openNew} handleClose={handleNewClose} propUser={user}/>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4}>
-                        <Card>
-                            <CardHeader
-                                title="Join Game"
-                                titleTypographyProps={{align: 'center'}}
-                                subheaderTypographyProps={{align: 'center'}}
-                                className={classes.cardHeader}
-                            />
-                            <JoinGameModal open={openJoin} handleClose={handleJoinClose} propUser={user}/>
-                            <CardContent>
-                                <ul>
-                                    <Typography component="li" variant="subtitle1" align="center">
-                                        Join a game
-                                    </Typography>
-                                </ul>
-                            </CardContent>
-                            <CardActions>
-                                <Button fullWidth variant="contained" color="primary"
-                                        onClick={handleJoinOpen}>
-                                    Join
-                                </Button>
-                            </CardActions>
-                        </Card>
+                        <Button fullWidth
+                                variant="contained"
+                                color={"primary"}
+                                style={{fontSize: '25px', 'text-transform': 'none'}}
+                                onClick={handleJoinOpen}>
+                            Join
+                        </Button>
+                        <JoinGameModal open={openJoin} handleClose={handleJoinClose} propUser={user}/>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4}>
-
-                        <Card>
-                            <CardHeader
-                                title="Resume Game"
-                                titleTypographyProps={{align: 'center'}}
-                                subheaderTypographyProps={{align: 'center'}}
-                                className={classes.cardHeader}
-                            />
-                            <ResumeGameModal open={openProg} handleClose={handleProClose} propUser={user}/>
-                            <CardContent>
-                                <ul>
-                                    <Typography component="li" variant="subtitle1" align="center">
-                                        Resume a game
-                                    </Typography>
-                                </ul>
-                            </CardContent>
-                            <CardActions>
-                                <Button fullWidth variant="contained" color="primary"
-                                        onClick={handleProOpen}>
-                                    Resume
-                                </Button>
-                            </CardActions>
-                        </Card>
+                        <Button fullWidth
+                                variant="contained"
+                                color={"primary"}
+                                style={{fontSize: '25px', 'text-transform': 'none'}}
+                                onClick={handleProOpen}>
+                            Resume
+                        </Button>
+                        <ResumeGameModal open={openProg} handleClose={handleProClose} propUser={user}/>
                     </Grid>
                 </Grid>
             </Container>
