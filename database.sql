@@ -7,8 +7,6 @@ CREATE TABLE users(
     user_password VARCHAR(255) NOT NULL
 );
 
-INSERT INTO users (user_name, user_email, user_password) VALUES ('nate', 'nathan.hishon@gmail.com', 'password')
-
 
 CREATE TABLE games(
     game_id SERIAL PRIMARY KEY,
