@@ -66,8 +66,6 @@ export default function Login({setAuth}) {
 
             const parseRes = await response.json();
 
-            console.log(parseRes)
-
             if(!parseRes.jwtToken){
                 setError(parseRes)
                 throw Error(parseRes)

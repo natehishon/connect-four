@@ -54,7 +54,7 @@ export const move = (board, col, turn) => {
         if (board[i][col].hasPiece === false) {
             board[i][col].hasPiece = true;
             board[i][col].piece = {...Piece};
-            board[i][col].piece.color = turn ? Color.BLACK : Color.WHITE;
+            board[i][col].piece.color = turn ? Color.RED : Color.BLUE;
             lastPiece = [i, col]
             moved = true
             break;

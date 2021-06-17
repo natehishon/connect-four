@@ -2,6 +2,6 @@
  * Enum represents colors;
  */
 export default {
-  WHITE: 0,
-  BLACK: 1,
+  BLUE: 0,
+  RED: 1,
 };

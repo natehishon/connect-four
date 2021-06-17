@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
@@ -22,7 +22,6 @@ const useStyles = makeStyles((theme) => ({
         cursor: "default",
         backgroundColor: "transparent",
         "&:hover": {
-            //you want this to be the same as the backgroundColor above
             backgroundColor: "transparent"
         },
         "& .MuiTouchRipple-root span":{

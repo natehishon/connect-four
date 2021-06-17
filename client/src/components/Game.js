@@ -17,9 +17,6 @@ import Box from '@material-ui/core/Box';
 
 
 const useStyles = makeStyles((theme) => ({
-    appBar: {
-        position: 'relative',
-    },
     layout: {
         width: 'auto',
         marginLeft: theme.spacing(2),
@@ -28,23 +25,6 @@ const useStyles = makeStyles((theme) => ({
             marginLeft: 'auto',
             marginRight: 'auto',
         },
-    },
-    paper: {
-        marginTop: theme.spacing(3),
-        marginBottom: theme.spacing(3),
-        padding: theme.spacing(2),
-        [theme.breakpoints.up(600 + theme.spacing(3) * 2)]: {
-            marginTop: theme.spacing(6),
-            marginBottom: theme.spacing(6),
-            padding: theme.spacing(3),
-        },
-    },
-    stepper: {
-        padding: theme.spacing(3, 0, 5),
-    },
-    buttons: {
-        display: 'flex',
-        justifyContent: 'flex-end',
     },
     button: {
         marginTop: theme.spacing(3),
@@ -82,10 +62,6 @@ const Game = ({setAuth}) => {
     const fetchInitialState = async () => {
         if (user) {
             const savedGame = await getSavedGame(id)
-
-            if (!savedGame.game) {
-                //show error
-            }
 
             if (savedGame.game.saved_game) {
                 setCells(savedGame.game.saved_game);
@@ -176,6 +152,22 @@ const Game = ({setAuth}) => {
         }
     };
 
+    const handleReset = async () => {
+        if (winner) {
+            const {board, turn} = await GameService.getInitialBoard();
+            const gameData = await saveState(board, turn, id, false);
+            setGameData(gameData)
+            setCells(board);
+            setTurn(turn);
+            setWinner(false);
+            setLoading(false);
+        }
+    }
+
+    const handleCloseWinner = () => {
+        setOpenWinner(false);
+    };
+
     const saveState = async (board, turn, gameId, win) => {
         try {
             const body = {board: board, turn: turn, status: win ? "WON" : "IN_PROGRESS"}
@@ -211,22 +203,6 @@ const Game = ({setAuth}) => {
         }
     }
 
-    const handleReset = async () => {
-        if (winner) {
-            const {board, turn} = await GameService.getInitialBoard();
-            const gameData = await saveState(board, turn, id, false);
-            setGameData(gameData)
-            setCells(board);
-            setTurn(turn);
-            setWinner(false);
-            setLoading(false);
-        }
-    }
-
-    const handleCloseWinner = () => {
-        setOpenWinner(false);
-    };
-
     return (
         <React.Fragment>
             <CssBaseline/>
@@ -237,7 +213,7 @@ const Game = ({setAuth}) => {
                     <Loader/>
                 ) : (
                     <main className={classes.layout}>
-                        <EventContext.Provider value={{handleSquareSelected, user}}>
+                        <EventContext.Provider value={{handleSquareSelected}}>
                             <Grid container spacing={2}>
                                 <Grid item sm={2}>
                                     <ScoreCard playerNumber={0} player={playerOne} turn={turn} winner={winner}/>
@@ -263,8 +239,6 @@ const Game = ({setAuth}) => {
                                 </Grid>
                             </Box>
                             }
-
-
                         </EventContext.Provider>
                     </main>
                 )}
