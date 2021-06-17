@@ -44,7 +44,7 @@ router.post("/login", validInfo, async (req, res) => {
 
         if (user.rows.length === 0) {
             errors.email = "Email not found"
-            return res.status(401).json(errors.email)
+            return res.status(401).json(errors)
         }
 
         const validPassword = await bcrypt.compare(password, user.rows[0].user_password);
