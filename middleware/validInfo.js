@@ -5,18 +5,38 @@ module.exports = function(req, res, next) {
         return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(userEmail);
     }
 
+    let errors = {}
     if (req.path === "/register") {
-        console.log(!email.length);
         if (![email, name, password].every(Boolean)) {
-            return res.status(401).json("Missing Credentials");
+            if(!email){
+                errors.email = "Missing email"
+            }
+            if(!name){
+                errors.name = "Missing name"
+            }
+            if(!password){
+                errors.password = "Missing password"
+            }
+            return res.status(401).json(errors);
         } else if (!validEmail(email)) {
-            return res.status(401).json("Invalid Email");
+            errors.email = "Invalid email"
+            return res.status(401).json(errors);
         }
     } else if (req.path === "/login") {
         if (![email, password].every(Boolean)) {
-            return res.status(401).json("Missing Credentials");
+
+            if(!email){
+                errors.email = "Missing email"
+            }
+
+            if(!password){
+                errors.password = "Missing password"
+            }
+
+            return res.status(401).json(errors);
         } else if (!validEmail(email)) {
-            return res.status(401).json("Invalid Email");
+            errors.email = "Invalid email"
+            return res.status(401).json(errors);
         }
     }
 

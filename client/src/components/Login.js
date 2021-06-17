@@ -39,6 +39,8 @@ export default function Login({setAuth}) {
         password: ""
     })
 
+    const [error, setError] = useState("")
+
     const {email, password} = inputs
 
     const onChange = (e) => {
@@ -55,6 +57,7 @@ export default function Login({setAuth}) {
                 {
                     method: "POST",
                     headers: {
+                        'Accept': 'application/json',
                         "Content-type": "application/json"
                     },
                     body: JSON.stringify(body)
@@ -63,11 +66,18 @@ export default function Login({setAuth}) {
 
             const parseRes = await response.json();
 
+            console.log(parseRes)
+
+            if(!parseRes.jwtToken){
+                setError(parseRes)
+                throw Error(parseRes)
+            }
+
             localStorage.setItem("token", parseRes.jwtToken)
             setAuth(true)
 
         } catch (err) {
-            console.error(err.message);
+            console.log(err)
         }
     };
 
@@ -94,6 +104,8 @@ export default function Login({setAuth}) {
                         name="email"
                         autoComplete="email"
                         autoFocus
+                        error={error.email}
+                        helperText={error.email}
                     />
                     <TextField
                         value={password}
@@ -107,6 +119,8 @@ export default function Login({setAuth}) {
                         type="password"
                         id="password"
                         autoComplete="current-password"
+                        error={error.password}
+                        helperText={error.password}
                     />
                     <Button
                         type="submit"

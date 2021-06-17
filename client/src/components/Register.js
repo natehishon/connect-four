@@ -40,6 +40,7 @@ export default function Register({setAuth}) {
         name: ""
     })
 
+    const [error, setError] = useState("")
     const {email, password, name} = inputs;
 
     const onChange = (e) => {
@@ -60,6 +61,12 @@ export default function Register({setAuth}) {
             })
 
             const parseRes = await response.json();
+
+            if(!parseRes.jwtToken){
+                setError(parseRes)
+                throw Error(parseRes)
+            }
+
             localStorage.setItem("token", parseRes.jwtToken)
             setAuth(true)
 
@@ -91,6 +98,8 @@ export default function Register({setAuth}) {
                                 autoComplete="name"
                                 value={name}
                                 onChange={e => onChange(e)}
+                                error={error.name}
+                                helperText={error.name}
                             />
                         </Grid>
                         <Grid item xs={12}>
@@ -104,6 +113,8 @@ export default function Register({setAuth}) {
                                 autoComplete="email"
                                 value={email}
                                 onChange={e => onChange(e)}
+                                error={error.email}
+                                helperText={error.email}
                             />
                         </Grid>
                         <Grid item xs={12}>
@@ -118,6 +129,8 @@ export default function Register({setAuth}) {
                                 autoComplete="current-password"
                                 value={password}
                                 onChange={e => onChange(e)}
+                                error={error.password}
+                                helperText={error.password}
                             />
                         </Grid>
                     </Grid>
